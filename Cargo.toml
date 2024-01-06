@@ -1,0 +1,49 @@
+[package]
+name = "quinn-wasm"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.74"
+bytes = { version = "1.4.0", features = ["serde"] }
+futures-util = { version = "0.3.28", features = ["sink"] }
+postcard = { version = "1.0.6", features = ["use-std"] }
+quinn = { version = "0.11", default-features = false, features = ["wasm-web", "ring", "rustls"] }
+quinn-proto = { version = "0.11", default-features = false, features = ["ring", "rustls"] }
+serde = { version = "1.0.183", features = ["derive"] }
+tokio = { version = "1.31.0", features = ["sync"] }
+tokio-tungstenite-wasm = "0.1.0"
+tracing = "0.1.37"
+url = "2.4.0"
+wasm-bindgen-futures = { version = "0.4.37", optional = true }
+instant = "0.1"
+wasmtimer = "0.2.0"
+getrandom = { version = "0.2.10", features = ["js", "wasm-bindgen", "js-sys"] }
+ring = { version = "0.17.7", features = ["wasm32_unknown_unknown_js"] }
+# only to enable feature
+rustls-pki-types = { version = "1", features = ["std", "wasm-web"] }
+
+[features]
+default = ["native"]
+wasm-web = ["wasm-bindgen-futures", "instant/wasm-bindgen"]
+native = ["tokio/rt", "tokio/time", "quinn/udp-impl"]
+
+[workspace]
+members = ["examples/web", "examples/relay", "examples/quic-echo-server"]
+
+[profile.release]
+debug = true
+
+[patch.crates-io]
+rustls-pki-types = { git = "https://github.com/Frando/rustls-pki-types.git", branch = "wasm-web" }
+rustls = { git = "https://github.com/Frando/rustls.git", branch = "0.21-wasm" }
+quinn = { git = "https://github.com/Frando/quinn.git", branch = "feat-wasm-web" }
+quinn-udp = { git = "https://github.com/Frando/quinn.git", branch = "feat-wasm-web" }
+quinn-proto = { git = "https://github.com/Frando/quinn.git", branch = "feat-wasm-web" }
+# rustls-pki-types = { path = "../rustls-pki-types" }
+# rustls = { path = "../rustls/rustls" }
+# quinn = { path = "../quinn/quinn" }
+# quinn-udp = { path = "../quinn/quinn-udp" }
+# quinn-proto = { path = "../quinn/quinn-proto" }

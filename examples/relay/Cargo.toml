@@ -1,0 +1,25 @@
+[package]
+name = "quinn-websocket-relay"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+tokio = { version = "1.0", features = ["full"] }
+tower = { version = "0.4", features = ["util"] }
+tower-http = { version = "0.4.0", features = ["fs", "trace"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+quinn-udp = "0.5"
+quinn = "0.11"
+axum = { git = "https://github.com/tokio-rs/axum.git", features = ["ws"] }
+axum-extra = { git = "https://github.com/tokio-rs/axum.git", features = ["typed-header"] }
+headers = "0.3.8"
+anyhow = "1.0.74"
+futures = "0.3.28"
+postcard = { version = "1.0.8", features = ["use-std"] }
+serde = { version = "1.0.194", features = ["derive"] }
+bytes = { version = "1.5.0", features = ["serde"] }
+
+# [[bin]]
+# name = "main2"

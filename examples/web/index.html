@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<head>
+<title>quinn-wasm - QUIC in the browser!</title>
+<script type="module">
+import init, { connect_to_quic_demo } from './pkg/quinn_wasm_web.js';
+await init()
+
+const formEl = document.querySelector('#form')
+const outputEl = document.querySelector('#output')
+const loaderEl = document.querySelector('.loader')
+
+// set default relay URL
+const relayUrl = new URL('/quic', window.location.href);
+relayUrl.protocol = relayUrl.protocol.replace('http', 'ws');
+formEl.querySelector('input[name=relay]').value = relayUrl.href
+
+// add submit handler
+formEl.addEventListener('submit', async e => {
+  e.preventDefault()
+  loaderEl.style.display = 'block'
+  outputEl.innerText = ''
+  try {
+    const data = new FormData(formEl)
+    console.log('data', data)
+    const host = data.get('host')
+    const message = data.get('message')
+    const relayUrl = data.get('relay')
+
+    console.log('connect!', { host, message, relayUrl })
+    const reply = await connect_to_quic_demo(relayUrl, host, message)
+
+    console.log('got reply', reply)
+    outputEl.innerText = reply
+  } catch (err) {
+    console.error('failed', err)
+    outputEl.innerText = 'failed: ' + err
+  } finally {
+    loaderEl.style.display = 'none'
+  }
+})
+</script>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<h1>QUIC in the browser</h1>
+<a href="https://github.com/Frando/quinn-wasm" target="_blank">Github</a>
+<p>
+This demo runs the <a href="https://github.com/quinn-rs/quinn" target="_blank">quinn</a> QUIC implementation compiled to WASM in the browser. It forwards UDP packets over a WebSocket connection to a relay server, which then sends them out to the actual destination. All packets are end-to-end encrpyted between browser and the destination QUIC server; the relay cannot read anything.
+</p>
+<em>Caveats:</em>
+<ul>
+<li>
+The demo uses self-signed certificates without any checks, so it could be MITM'ed. This can be mitigated though by either shipping regular WebPKI certificates in the WASM bundle, or using P2P certificates, e.g. like <a href="https://iroh.computer" target="_blank">Iroh Net</a>
+</li>
+<li>
+This currently needs a few patches to <code>quinn</code> and <code>rustls</code>. See the <a href="https://github.com/Frando/quinn-wasm" target="_blank">GitHub repo</a> for details.
+</li>
+<li>
+You likely do not want to run this as-is in production, because it will allow anyone to use your relay server to send any kind of UDP packet to any destination.
+</li>
+</ul>
+<form id="form">
+  <label for="relay">Relay URL</label> 
+  <input name="relay" value="foobar">
+  <label for="host">QUIC host:</label>
+  <input name="host" value="127.0.0.1:4000">
+  <label for="message">Message:</label>
+  <input name="message" value="foobar">
+  <div class="actions">
+    <button type="submit" id="start">START</button>
+   </div>
+</form>
+<p>
+<em>Open the browser console for detailed logs!</em>
+</p>
+<h3>Output:</h3>
+<div class="loader"></div>
+<code id="output"></code>
+</body>

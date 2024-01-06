@@ -1,0 +1,16 @@
+
+[package]
+name = "quic-echo-server"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+quinn = { version = "0.11" }
+anyhow = "1.0.74"
+futures = "0.3.28"
+tokio = { version = "1.35.1", features = ["full"] }
+rustls = { version = "0.21.0", default-features = false, features = ["quic"] }
+rcgen = "0.12.0"
